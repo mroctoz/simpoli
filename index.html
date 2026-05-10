@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poder & Decisão: Simulador Político Brasileiro</title>
+    
+    <!-- Google Fonts: Inter para textos UI, Orbitron para dados/números futuristas -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Arquivo CSS que será criado no próximo passo -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+
+    <!-- Container Principal do Jogo (Glassmorphism Escuro) -->
+    <div id="game-container" class="glass-layout">
+
+        <!-- ========================================== -->
+        <!-- MENU LATERAL (SIDEBAR) -->
+        <!-- ========================================== -->
+        <aside id="sidebar" class="glass-panel">
+            <div class="logo-container text-gradient">
+                <i class="fa-solid fa-landmark-dome icon-xl"></i>
+                <h1>Poder & Decisão</h1>
+            </div>
+
+            <!-- Navegação principal (Controlada pelo JS via data-target) -->
+            <nav class="main-nav">
+                <ul id="nav-list">
+                    <li class="nav-item active" data-target="view-dashboard">
+                        <i class="fa-solid fa-chart-pie"></i> Visão Geral
+                    </li>
+                    <li class="nav-item" data-target="view-events">
+                        <i class="fa-solid fa-inbox"></i> Caixa de Eventos <span class="badge accent-red" id="badge-events">3</span>
+                    </li>
+                    <li class="nav-item" data-target="view-congress">
+                        <i class="fa-solid fa-users-viewfinder"></i> Congresso Nacional
+                    </li>
+                    <li class="nav-item" data-target="view-stf">
+                        <i class="fa-solid fa-scale-balanced"></i> Supremo Tribunal (STF)
+                    </li>
+                    <li class="nav-item" data-target="view-parties">
+                        <i class="fa-solid fa-handshake"></i> Partidos e Alianças
+                    </li>
+                    <li class="nav-item" data-target="view-elections">
+                        <i class="fa-solid fa-check-to-slot"></i> Painel Eleitoral
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Dev Toggle (Apenas para fins de visualização dos dois módulos) -->
+            <div class="module-toggle-container glass-card">
+                <p class="text-small"><i class="fa-solid fa-code"></i> Status do Jogador</p>
+                <div class="toggle-buttons">
+                    <button class="glass-btn btn-small active" id="btn-mod-power">No Poder</button>
+                    <button class="glass-btn btn-small" id="btn-mod-opposition">Oposição</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ========================================== -->
+        <!-- ÁREA CENTRAL DO JOGO -->
+        <!-- ========================================== -->
+        <div id="main-wrapper">
+            
+            <!-- CABEÇALHO (TOPBAR) -->
+            <header id="topbar" class="glass-panel">
+                <div class="player-info">
+                    <div class="avatar-glass">
+                        <i class="fa-solid fa-user-tie"></i>
+                    </div>
+                    <div class="player-details">
+                        <h2 id="player-name">João Silva</h2>
+                        <span id="player-role" class="text-gradient role-executive">Presidente da República - PDR</span>
+                    </div>
+                </div>
+
+                <div class="game-stats">
+                    <!-- Barra de Aprovação -->
+                    <div class="stat-item tooltip-container">
+                        <div class="stat-icon"><i class="fa-solid fa-thumbs-up text-blue"></i></div>
+                        <div class="stat-data">
+                            <span class="stat-label">Aprovação POP.</span>
+                            <div class="progress-container glass-progress">
+                                <div class="progress-bar fill-blue" id="approval-bar" style="width: 54%;"></div>
+                            </div>
+                            <span class="stat-value font-orbitron">54%</span>
+                        </div>
+                    </div>
+
+                    <!-- Capital Político -->
+                    <div class="stat-item tooltip-container">
+                        <div class="stat-icon"><i class="fa-solid fa-bolt text-yellow"></i></div>
+                        <div class="stat-data">
+                            <span class="stat-label">Capital Político</span>
+                            <span class="stat-value font-orbitron" id="political-capital">320 pt</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="turn-controls">
+                    <div class="turn-info">
+                        <span class="turn-date text-bold">Maio de 2026</span>
+                        <span class="turn-counter">Turno <span class="font-orbitron">17</span> / 48</span>
+                    </div>
+                    <button id="btn-next-turn" class="glass-btn btn-primary pulse-effect">
+                        Avançar Turno <i class="fa-solid fa-forward-step"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- CONTENT CONTAINER (Onde as views são alternadas) -->
+            <main id="views-container">
+
+                <!-- VIEW 1: DASHBOARD (Visão Geral) -->
+                <section id="view-dashboard" class="view active">
+                    <div class="view-header">
+                        <h2><i class="fa-solid fa-chart-pie text-accent"></i> Painel de Controle Nacional</h2>
+                    </div>
+                    
+                    <div class="grid-layout dashboard-grid">
+                        
+                        <!-- Indicadores Socioeconômicos -->
+                        <div class="glass-card module-economy span-2">
+                            <h3><i class="fa-solid fa-chart-line"></i> Indicadores Socioeconômicos</h3>
+                            <div class="indicators-grid">
+                                <div class="indicator-item">
+                                    <span class="ind-title">PIB Growth</span>
+                                    <span class="ind-value font-orbitron text-green"><i class="fa-solid fa-arrow-trend-up"></i> +2.1%</span>
+                                </div>
+                                <div class="indicator-item">
+                                    <span class="ind-title">Inflação (IPCA)</span>
+                                    <span class="ind-value font-orbitron text-red"><i class="fa-solid fa-arrow-trend-up"></i> 6.4%</span>
+                                </div>
+                                <div class="indicator-item">
+                                    <span class="ind-title">Desemprego</span>
+                                    <span class="ind-value font-orbitron text-yellow"><i class="fa-solid fa-minus"></i> 8.9%</span>
+                                </div>
+                                <div class="indicator-item">
+                                    <span class="ind-title">Risco Brasil</span>
+                                    <span class="ind-value font-orbitron">250 pts</span>
+                                </div>
+                            </div>
+                            
+                            <div class="social-bars mt-4">
+                                <div class="bar-group">
+                                    <label><i class="fa-solid fa-shield-halved"></i> Segurança Pública</label>
+                                    <div class="glass-progress"><div class="progress-bar fill-yellow" style="width: 45%;"></div></div>
+                                </div>
+                                <div class="bar-group">
+                                    <label><i class="fa-solid fa-heart-pulse"></i> Saúde</label>
+                                    <div class="glass-progress"><div class="progress-bar fill-red" style="width: 30%;"></div></div>
+                                </div>
+                                <div class="bar-group">
+                                    <label><i class="fa-solid fa-book-open"></i> Educação</label>
+                                    <div class="glass-progress"><div class="progress-bar fill-blue" style="width: 55%;"></div></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ações Rápidas (Depende se está no poder ou oposição) -->
+                        <div class="glass-card module-actions">
+                            <h3><i class="fa-solid fa-bolt"></i> Ações de Turno</h3>
+                            <div class="actions-list executive-only">
+                                <button class="glass-btn btn-action" onclick="openModal('modal-propose-law')"><i class="fa-solid fa-file-signature"></i> Propor Medida Provisória</button>
+                                <button class="glass-btn btn-action"><i class="fa-solid fa-bullhorn"></i> Pronunciamento Oficial</button>
+                                <button class="glass-btn btn-action"><i class="fa-solid fa-sack-dollar"></i> Liberar Emendas Parlamentares</button>
+                            </div>
+                            <div class="actions-list legislative-only hidden">
+                                <button class="glass-btn btn-action" onclick="openModal('modal-propose-law')"><i class="fa-solid fa-file-circle-plus"></i> Propor Nova Lei</button>
+                                <button class="glass-btn btn-action" onclick="openModal('modal-impeachment')"><i class="fa-solid fa-gavel"></i> Protocolar Impeachment</button>
+                                <button class="glass-btn btn-action"><i class="fa-solid fa-users-rectangle"></i> Articular CPI</button>
+                            </div>
+                        </div>
+
+                        <!-- Gabinete Ministerial (Apenas No Poder) -->
+                        <div class="glass-card module-cabinet span-3 executive-only">
+                            <div class="card-header-flex">
+                                <h3><i class="fa-solid fa-briefcase"></i> Gabinete de Ministros</h3>
+                                <button class="glass-btn btn-small"><i class="fa-solid fa-rotate"></i> Reforma Ministerial</button>
+                            </div>
+                            <div class="cabinet-grid" id="cabinet-container">
+                                <!-- Card Ministro Mockup -->
+                                <div class="minister-card">
+                                    <div class="minister-avatar"><i class="fa-solid fa-user-tie"></i></div>
+                                    <div class="minister-info">
+                                        <span class="ministry-name">Fazenda</span>
+                                        <span class="minister-name">Carlos Figueiredo</span>
+                                        <span class="minister-party text-blue">MDB</span>
+                                    </div>
+                                    <button class="glass-btn btn-icon" title="Demitir Ministro"><i class="fa-solid fa-user-xmark"></i></button>
+                                </div>
+                                <div class="minister-card">
+                                    <div class="minister-avatar"><i class="fa-solid fa-user-doctor"></i></div>
+                                    <div class="minister-info">
+                                        <span class="ministry-name">Saúde</span>
+                                        <span class="minister-name">Dra. Ana Lúcia</span>
+                                        <span class="minister-party text-red">PT</span>
+                                    </div>
+                                    <button class="glass-btn btn-icon" title="Demitir Ministro"><i class="fa-solid fa-user-xmark"></i></button>
+                                </div>
+                                <!-- Mais ministros serão injetados pelo JS -->
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- VIEW 2: EVENTOS E INBOX -->
+                <section id="view-events" class="view hidden">
+                    <div class="view-header">
+                        <h2><i class="fa-solid fa-inbox text-accent"></i> Decisões Pendentes</h2>
+                        <p>Ocorrências que exigem sua ação imediata neste turno.</p>
+                    </div>
+
+                    <div class="events-list" id="events-container">
+                        
+                        <!-- Evento de Exemplo 1: Escândalo -->
+                        <div class="glass-card event-card critical-event">
+                            <div class="event-icon"><i class="fa-solid fa-triangle-exclamation text-red"></i></div>
+                            <div class="event-content">
+                                <span class="event-tag accent-red">Escândalo de Corrupção</span>
+                                <h3>Vazamento de Áudios no Ministério da Infraestrutura</h3>
+                                <p>A imprensa acaba de vazar áudios do seu Ministro negociando propina em obras de rodovias federais. O Congresso ameaça abrir uma CPI se nada for feito.</p>
+                                <div class="event-impact-preview">
+                                    <span>Possíveis Impactos:</span>
+                                    <i class="fa-solid fa-thumbs-up text-red"></i> Aprovação 
+                                    <i class="fa-solid fa-handshake text-yellow"></i> Relação Partidária
+                                </div>
+                                <div class="event-actions">
+                                    <button class="glass-btn btn-danger"><i class="fa-solid fa-user-xmark"></i> Demitir o Ministro</button>
+                                    <button class="glass-btn btn-warning"><i class="fa-solid fa-shield-halved"></i> Proteger o Aliado (-20 Pol. Capital)</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Evento de Exemplo 2: Acidente / Desastre -->
+                        <div class="glass-card event-card">
+                            <div class="event-icon"><i class="fa-solid fa-cloud-showers-water text-blue"></i></div>
+                            <div class="event-content">
+                                <span class="event-tag accent-blue">Desastre Natural</span>
+                                <h3>Enchentes Históricas na Região Sul</h3>
+                                <p>Fortes chuvas destruíram a infraestrutura de dezenas de cidades. A população exige apoio federal emergencial imediato.</p>
+                                <div class="event-actions">
+                                    <button class="glass-btn btn-success"><i class="fa-solid fa-money-bill-wave"></i> Liberar R$ 5 Bilhões</button>
+                                    <button class="glass-btn btn-neutral"><i class="fa-solid fa-plane"></i> Apenas Visitar a Região</button>
+                                    <button class="glass-btn btn-danger"><i class="fa-solid fa-eye-slash"></i> Ignorar Apelo</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- VIEW 3: CONGRESSO NACIONAL -->
+                <section id="view-congress" class="view hidden">
+                    <div class="view-header">
+                        <h2><i class="fa-solid fa-users-viewfinder text-accent"></i> Congresso Nacional</h2>
+                        <div class="congress-filters">
+                            <button class="glass-btn active">Visão Geral</button>
+                            <button class="glass-btn" onclick="openModal('modal-propose-law')">Propor Lei</button>
+                        </div>
+                    </div>
+
+                    <div class="congress-layout">
+                        <!-- Representação Gráfica das Casas -->
+                        <div class="chambers-visual glass-card">
+                            
+                            <div class="chamber-section">
+                                <h3><i class="fa-solid fa-building-user text-green"></i> Câmara dos Deputados (513)</h3>
+                                <!-- Container onde o JS desenhará os 513 pontinhos em forma de semicírculo -->
+                                <div id="deputies-plot" class="plot-area">
+                                    <div class="placeholder-text"><i class="fa-solid fa-spinner fa-spin"></i> Renderizando Deputados...</div>
+                                </div>
+                                <div class="chamber-stats">
+                                    <span class="base-gov"><i class="fa-solid fa-circle text-green"></i> Base do Gov: 260</span>
+                                    <span class="base-ind"><i class="fa-solid fa-circle text-yellow"></i> Independentes: 153</span>
+                                    <span class="base-opp"><i class="fa-solid fa-circle text-red"></i> Oposição: 100</span>
+                                </div>
+                            </div>
+
+                            <hr class="glass-divider">
+
+                            <div class="chamber-section">
+                                <h3><i class="fa-solid fa-building-user text-blue"></i> Senado Federal (81)</h3>
+                                <!-- Container onde o JS desenhará os 81 pontinhos -->
+                                <div id="senate-plot" class="plot-area">
+                                    <div class="placeholder-text"><i class="fa-solid fa-spinner fa-spin"></i> Renderizando Senadores...</div>
+                                </div>
+                                <div class="chamber-stats">
+                                    <span class="base-gov"><i class="fa-solid fa-circle text-green"></i> Base do Gov: 41</span>
+                                    <span class="base-ind"><i class="fa-solid fa-circle text-yellow"></i> Independentes: 15</span>
+                                    <span class="base-opp"><i class="fa-solid fa-circle text-red"></i> Oposição: 25</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tabela de Leis em Pauta -->
+                        <div class="laws-queue glass-card">
+                            <h3><i class="fa-solid fa-scroll"></i> Pauta de Votações</h3>
+                            <table class="glass-table">
+                                <thead>
+                                    <tr>
+                                        <th>Projeto</th>
+                                        <th>Autor</th>
+                                        <th>Impacto</th>
+                                        <th>Ação</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="laws-table-body">
+                                    <tr>
+                                        <td><strong>PEC 45 - Reforma Tributária</strong><br><span class="text-small text-muted">Unifica impostos de consumo.</span></td>
+                                        <td>Executivo</td>
+                                        <td><i class="fa-solid fa-arrow-up text-green"></i> PIB</td>
+                                        <td><button class="glass-btn btn-small btn-primary" onclick="openModal('modal-voting-animation')"><i class="fa-solid fa-play"></i> Iniciar Votação</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>PL 102 - Aumento Fundo Eleitoral</strong><br><span class="text-small text-muted">Aumenta repasse aos partidos.</span></td>
+                                        <td>Legislativo</td>
+                                        <td><i class="fa-solid fa-arrow-down text-red"></i> Aprovação</td>
+                                        <td><span class="status-badge pending">Aguardando</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 4: SUPREMO TRIBUNAL FEDERAL (STF) -->
+                <section id="view-stf" class="view hidden">
+                    <div class="view-header">
+                        <h2><i class="fa-solid fa-scale-balanced text-accent"></i> Supremo Tribunal Federal</h2>
+                        <p>A mais alta corte do país. Controle de constitucionalidade e julgamento de autoridades.</p>
+                    </div>
+
+                    <div class="stf-layout">
+                        <!-- Cadeiras do STF -->
+                        <div class="stf-grid glass-card" id="stf-container">
+                            <!-- JS deve popular os 11 ministros. Aqui vai um exemplo -->
+                            <div class="minister-supreme-card">
+                                <div class="supreme-avatar"><i class="fa-solid fa-gavel"></i></div>
+                                <div class="supreme-info">
+                                    <h4>Min. Gilmar Mendes</h4>
+                                    <span class="supreme-tag ideol-garantista">Perfil: Garantista</span>
+                                    <span class="supreme-tag text-muted">Indicação: Pres. Anterior</span>
+                                </div>
+                                <div class="supreme-actions">
+                                    <!-- Ação de Impeachment habilitada para legislativo ou eventos específicos -->
+                                    <button class="glass-btn btn-small btn-danger" onclick="openModal('modal-impeachment')"><i class="fa-solid fa-ban"></i> Pedir Impeachment</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Exemplo de Cadeira Vazia -->
+                            <div class="minister-supreme-card vacant-seat">
+                                <div class="supreme-avatar empty"><i class="fa-solid fa-user-plus"></i></div>
+                                <div class="supreme-info">
+                                    <h4 class="text-muted">Cadeira Vaga</h4>
+                                    <span class="supreme-tag text-muted">Aguardando Indicação</span>
+                                </div>
+                                <div class="supreme-actions executive-only">
+                                    <button class="glass-btn btn-small btn-success" onclick="openModal('modal-appoint-stf')"><i class="fa-solid fa-pen-nib"></i> Indicar Ministro</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Relação com o Judiciário -->
+                        <div class="stf-relations glass-card">
+                            <h3><i class="fa-solid fa-handshake-angle"></i> Termômetro Jurídico</h3>
+                            <p>Risco de suas leis serem barradas no STF por inconstitucionalidade:</p>
+                            <div class="glass-progress mt-2">
+                                <!-- Risco Baixo (Verde), Médio (Amarelo), Alto (Vermelho) -->
+                                <div class="progress-bar fill-yellow" style="width: 45%;"></div>
+                            </div>
+                            <span class="text-small text-muted">Risco Moderado (45%)</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 5: PARTIDOS E ALIANÇAS -->
+                <section id="view-parties" class="view hidden">
+                    <div class="view-header">
+                        <h2><i class="fa-solid fa-handshake text-accent"></i> Relações Partidárias</h2>
+                        <p>Gerencie sua base aliada, negocie cargos e evite inimizades perigosas.</p>
+                    </div>
+
+                    <div class="parties-list glass-card">
+                        <table class="glass-table parties-table">
+                            <thead>
+                                <tr>
+                                    <th>Partido</th>
+                                    <th>Espectro</th>
+                                    <th>Câmara (Dep.)</th>
+                                    <th>Senado (Sen.)</th>
+                                    <th>Afinidade com Você</th>
+                                    <th>Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="parties-table-body">
+                                <!-- Mockup Partido Aliado -->
+                                <tr>
+                                    <td><strong>PL</strong> - Partido Liberal</td>
+                                    <td><span class="ideology right">Direita</span></td>
+                                    <td>99</td>
+                                    <td>13</td>
+                                    <td>
+                                        <div class="affinity-bar tooltip-container">
+                                            <div class="glass-progress"><div class="progress-bar fill-green" style="width: 85%;"></div></div>
+                                            <span>Aliado Fiel (85%)</span>
+                                        </div>
+                                    </td>
+                                    <td><button class="glass-btn btn-small"><i class="fa-solid fa-comments"></i> Negociar</button></td>
+                                </tr>
+                                <!-- Mockup Partido Oposição -->
+                                <tr>
+                                    <td><strong>PT</strong> - Partido dos Trabalhadores</td>
+                                    <td><span class="ideology left">Esquerda</span></td>
+                                    <td>68</td>
+                                    <td>9</td>
+                                    <td>
+                                        <div class="affinity-bar tooltip-container">
+                                            <div class="glass-progress"><div class="progress-bar fill-red" style="width: 15%;"></div></div>
+                                            <span>Oposição Forte (15%)</span>
+                                        </div>
+                                    </td>
+                                    <td><button class="glass-btn btn-small"><i class="fa-solid fa-comments"></i> Negociar</button></td>
+                                </tr>
+                                <!-- Mockup Partido Centrão -->
+                                <tr>
+                                    <td><strong>PP</strong> - Progressistas</td>
+                                    <td><span class="ideology center">Centro</span></td>
+                                    <td>47</td>
+                                    <td>7</td>
+                                    <td>
+                                        <div class="affinity-bar tooltip-container">
+                                            <div class="glass-progress"><div class="progress-bar fill-yellow" style="width: 50%;"></div></div>
+                                            <span>Fisiológico (50%)</span>
+                                        </div>
+                                    </td>
+                                    <td><button class="glass-btn btn-small"><i class="fa-solid fa-money-check-dollar"></i> Oferecer Cargo</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- VIEW 6: ELEIÇÕES -->
+                <section id="view-elections" class="view hidden">
+                    <div class="view-header">
+                        <h2><i class="fa-solid fa-check-to-slot text-accent"></i> Painel Eleitoral</h2>
+                        <div class="countdown-card text-gradient">
+                            <i class="fa-solid fa-calendar-days"></i> Faltam 24 Turnos para as Eleições Gerais
+                        </div>
+                    </div>
+
+                    <div class="elections-layout grid-layout">
+                        <!-- Pesquisas Eleitorais -->
+                        <div class="polls-container glass-card span-2">
+                            <h3><i class="fa-solid fa-chart-simple"></i> Pesquisa de Intenção de Voto (Presidência)</h3>
+                            <div class="poll-chart" id="poll-bars">
+                                <!-- Barras de pesquisa animadas por JS -->
+                                <div class="poll-item">
+                                    <div class="poll-info"><span>João Silva (Atual) - PO</span> <span>34%</span></div>
+                                    <div class="glass-progress"><div class="progress-bar fill-blue" style="width: 34%;"></div></div>
+                                </div>
+                                <div class="poll-item">
+                                    <div class="poll-info"><span>Candidato Oposição - PT</span> <span>28%</span></div>
+                                    <div class="glass-progress"><div class="progress-bar fill-red" style="width: 28%;"></div></div>
+                                </div>
+                                <div class="poll-item">
+                                    <div class="poll-info"><span>Candidato 3ª Via - PSDB</span> <span>15%</span></div>
+                                    <div class="glass-progress"><div class="progress-bar fill-yellow" style="width: 15%;"></div></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Simulador de Apuração (Fica bloqueado até o turno da eleição) -->
+                        <div class="apuracao-preview glass-card">
+                            <h3><i class="fa-solid fa-box-archive"></i> Sistema de Apuração</h3>
+                            <p class="text-muted text-center mt-4">A apuração das urnas será liberada no turno das eleições.</p>
+                            <div class="center-content mt-4">
+                                <!-- Botão de teste para ver a animação de apuração -->
+                                <button class="glass-btn btn-primary pulse-effect" onclick="openModal('modal-election-animation')">
+                                    <i class="fa-solid fa-play"></i> Simular Apuração (Dev)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAIS E ANIMAÇÕES (SOBREPOSIÇÕES GLASS) -->
+    <!-- ========================================== -->
+    <div id="modals-overlay" class="hidden">
+
+        <!-- Modal: Animação de Votação no Congresso -->
+        <dialog id="modal-voting-animation" class="glass-modal">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-gavel text-accent"></i> Votação no Plenário</h3>
+                <button class="close-btn" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body text-center">
+                <h4 class="voting-law-title">PEC 45 - Reforma Tributária</h4>
+                <p>O painel de votação foi aberto.</p>
+                
+                <div class="voting-bars-container mt-4">
+                    <div class="vote-bar">
+                        <label>A FAVOR (Verde)</label>
+                        <div class="glass-progress height-large"><div class="progress-bar fill-green" id="vote-yes" style="width: 0%;"></div></div>
+                        <span class="vote-count font-orbitron text-green" id="count-yes">0</span>
+                    </div>
+                    <div class="vote-bar">
+                        <label>CONTRA (Vermelho)</label>
+                        <div class="glass-progress height-large"><div class="progress-bar fill-red" id="vote-no" style="width: 0%;"></div></div>
+                        <span class="vote-count font-orbitron text-red" id="count-no">0</span>
+                    </div>
+                    <div class="vote-bar">
+                        <label>ABSTENÇÕES (Amarelo)</label>
+                        <div class="glass-progress height-large"><div class="progress-bar fill-yellow" id="vote-abs" style="width: 0%;"></div></div>
+                        <span class="vote-count font-orbitron text-yellow" id="count-abs">0</span>
+                    </div>
+                </div>
+
+                <div class="voting-result hidden mt-4 text-gradient" id="voting-final-result">
+                    <!-- JS injeta "APROVADA" ou "REJEITADA" aqui -->
+                    <h1>APROVADA</h1>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <!-- JS inicia a animação de encher as barras -->
+                <button class="glass-btn btn-primary" id="btn-start-vote-anim"><i class="fa-solid fa-play"></i> Iniciar Contagem</button>
+            </div>
+        </dialog>
+
+        <!-- Modal: Animação de Apuração de Eleições -->
+        <dialog id="modal-election-animation" class="glass-modal modal-large">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-chart-pie text-accent"></i> Apuração das Urnas Eletrônicas</h3>
+                <button class="close-btn" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="apuracao-status text-center">
+                    <h4 class="font-orbitron">Urnas Apuradas: <span id="urnas-percent" class="text-gradient">0.00%</span></h4>
+                    <div class="glass-progress mt-2"><div class="progress-bar fill-yellow" id="urnas-bar" style="width: 0%;"></div></div>
+                </div>
+
+                <div class="candidates-race mt-4" id="candidates-race-container">
+                    <!-- Candidato 1 -->
+                    <div class="race-item">
+                        <div class="race-avatar"><i class="fa-solid fa-user-tie"></i></div>
+                        <div class="race-data">
+                            <div class="race-info"><span>João Silva (PO)</span> <span class="font-orbitron vote-perc" id="cand1-perc">0.00%</span></div>
+                            <div class="glass-progress"><div class="progress-bar fill-blue cand-bar" id="cand1-bar" style="width: 0%;"></div></div>
+                            <span class="vote-absolute text-small text-muted" id="cand1-abs">0 votos</span>
+                        </div>
+                    </div>
+                    <!-- Candidato 2 -->
+                    <div class="race-item">
+                        <div class="race-avatar"><i class="fa-solid fa-user-tie"></i></div>
+                        <div class="race-data">
+                            <div class="race-info"><span>Oposição (PT)</span> <span class="font-orbitron vote-perc" id="cand2-perc">0.00%</span></div>
+                            <div class="glass-progress"><div class="progress-bar fill-red cand-bar" id="cand2-bar" style="width: 0%;"></div></div>
+                            <span class="vote-absolute text-small text-muted" id="cand2-abs">0 votos</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="election-winner hidden text-center mt-4" id="election-winner-div">
+                    <h2 class="text-gradient">ELEITO MATEMATICAMENTE</h2>
+                    <p id="winner-name">João Silva</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="glass-btn btn-primary" id="btn-start-election-anim"><i class="fa-solid fa-power-off"></i> Ligar Urnas</button>
+            </div>
+        </dialog>
+
+        <!-- Modal: Propor Lei -->
+        <dialog id="modal-propose-law" class="glass-modal">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-file-circle-plus text-accent"></i> Propor Nova Legislação</h3>
+                <button class="close-btn" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="form-propose-law" class="glass-form">
+                    <div class="form-group">
+                        <label>Título do Projeto:</label>
+                        <input type="text" class="glass-input" placeholder="Ex: Privatização dos Correios" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Área de Atuação:</label>
+                        <select class="glass-input">
+                            <option value="economy">Economia</option>
+                            <option value="health">Saúde</option>
+                            <option value="security">Segurança Pública</option>
+                            <option value="education">Educação</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Capital Político Necessário para Articulação:</label>
+                        <span class="font-orbitron text-yellow"><i class="fa-solid fa-bolt"></i> 150 pt</span>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="glass-btn btn-success"><i class="fa-solid fa-paper-plane"></i> Enviar ao Congresso</button>
+            </div>
+        </dialog>
+
+        <!-- Modal: Pedido de Impeachment -->
+        <dialog id="modal-impeachment" class="glass-modal">
+            <div class="modal-header">
+                <h3 class="text-red"><i class="fa-solid fa-ban"></i> Protocolar Pedido de Impeachment</h3>
+                <button class="close-btn" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <p>Atenção: Abrir um processo de impeachment consumirá massivo capital político e pode desestabilizar o país. Tem certeza?</p>
+                <form class="glass-form mt-2">
+                    <div class="form-group">
+                        <label>Alvo do Impeachment:</label>
+                        <select class="glass-input">
+                            <option value="stf_mendes">Min. Gilmar Mendes (STF)</option>
+                            <option value="stf_moraes">Min. Alexandre de Moraes (STF)</option>
+                            <!-- Se for oposição, pode pedir do presidente -->
+                            <option value="presidente" class="legislative-only hidden">Presidente da República</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Embasamento (Motivo Jurídico):</label>
+                        <textarea class="glass-input" rows="3" placeholder="Descreva o crime de responsabilidade..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="glass-btn btn-danger"><i class="fa-solid fa-gavel"></i> Protocolar Pedido</button>
+            </div>
+        </dialog>
+
+        <!-- Modal: Indicar Ministro STF -->
+        <dialog id="modal-appoint-stf" class="glass-modal">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-pen-nib text-accent"></i> Indicar Ministro do STF</h3>
+                <button class="close-btn" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <p>Selecione um jurista para a sabatina no Senado Federal.</p>
+                <div class="candidates-list mt-2">
+                    <!-- Opção 1 -->
+                    <div class="glass-card flex-row align-center mt-2 p-2">
+                        <div class="mr-2"><i class="fa-solid fa-user-graduate icon-lg"></i></div>
+                        <div>
+                            <h4>Dr. André Mendonça</h4>
+                            <span class="text-small text-muted">Perfil: Conservador / Terrivelmente Evangélico</span>
+                        </div>
+                        <div class="ml-auto">
+                            <button class="glass-btn btn-small btn-success">Indicar</button>
+                        </div>
+                    </div>
+                    <!-- Opção 2 -->
+                    <div class="glass-card flex-row align-center mt-2 p-2">
+                        <div class="mr-2"><i class="fa-solid fa-user-graduate icon-lg"></i></div>
+                        <div>
+                            <h4>Dr. Cristiano Zanin</h4>
+                            <span class="text-small text-muted">Perfil: Garantista / Advogado Pessoal</span>
+                        </div>
+                        <div class="ml-auto">
+                            <button class="glass-btn btn-small btn-success">Indicar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </dialog>
+
+    </div>
+
+    <!-- Script de Funcionalidade UI Básica (Mockup para visualização das abas) - O app.js oficial será separado -->
+    <script>
+        // Pequeno script inline apenas para garantir a interatividade inicial do esqueleto HTML, 
+        // permitindo testar as views e o toggle de módulos antes do app.js completo.
+        document.addEventListener('DOMContentLoaded', () => {
+            // Navegação da Sidebar
+            const navItems = document.querySelectorAll('.nav-item');
+            const views = document.querySelectorAll('.view');
+            
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    item.classList.add('active');
+                    
+                    const targetId = item.getAttribute('data-target');
+                    views.forEach(view => {
+                        view.classList.remove('active');
+                        view.classList.add('hidden');
+                        if(view.id === targetId) {
+                            view.classList.remove('hidden');
+                            view.classList.add('active');
+                        }
+                    });
+                });
+            });
+
+            // Toggle No Poder / Oposição (Para desenvolvimento visual)
+            const btnPower = document.getElementById('btn-mod-power');
+            const btnOpp = document.getElementById('btn-mod-opposition');
+            const execEls = document.querySelectorAll('.executive-only');
+            const legEls = document.querySelectorAll('.legislative-only');
+            const roleText = document.getElementById('player-role');
+
+            btnPower.addEventListener('click', () => {
+                btnPower.classList.add('active');
+                btnOpp.classList.remove('active');
+                execEls.forEach(el => el.classList.remove('hidden'));
+                legEls.forEach(el => el.classList.add('hidden'));
+                roleText.innerText = "Presidente da República - PDR";
+                roleText.className = "text-gradient role-executive";
+            });
+
+            btnOpp.addEventListener('click', () => {
+                btnOpp.classList.add('active');
+                btnPower.classList.remove('active');
+                execEls.forEach(el => el.classList.add('hidden'));
+                legEls.forEach(el => el.classList.remove('hidden'));
+                roleText.innerText = "Deputado Federal - Oposição";
+                roleText.className = "text-gradient role-legislative text-red";
+            });
+        });
+
+        // Funções para Modais
+        function openModal(modalId) {
+            document.getElementById('modals-overlay').classList.remove('hidden');
+            const modals = document.querySelectorAll('dialog');
+            modals.forEach(m => m.classList.remove('active'));
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModals() {
+            document.getElementById('modals-overlay').classList.add('hidden');
+            document.querySelectorAll('dialog').forEach(m => m.classList.remove('active'));
+        }
+    </script>
+</body>
+</html>
